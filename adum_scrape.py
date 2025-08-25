@@ -5,14 +5,16 @@ ADUM one-page scraper (parallel), tri par 'Dernière mise à jour le', sans org/
 Usage:
   python adum_onepage_parallel_min.py \
     --url "https://adum.fr/as/ed/propositionFR.pl" \
-    --workers 12 \
-    --out-json adum_offres.json \
+    --workers 50 \
+    --out-json offres.json \
+    --out-html index.html \
     --debug
 """
 from __future__ import annotations
 import argparse, json, sys, time, threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urljoin
+from html import escape
 
 import requests
 from bs4 import BeautifulSoup
@@ -114,11 +116,37 @@ def parse_detail(url: str, title_hint: str, debug=False):
             "posted_at_ts": -1,
         }
 
+def save_html(path: str, items: list[dict]):
+    """Écrit un HTML 'tout beubeu' listant Date + Titre (lien)."""
+    rows = []
+    for it in items:
+        date_txt = escape(it.get("posted_at") or "")
+        title_txt = escape(it.get("title") or "")
+        url_txt = escape(it.get("url") or "#")
+        rows.append(f"<tr><td>{date_txt}</td><td><a href=\"{url_txt}\">{title_txt}</a></td></tr>")
+    html = (
+        "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n"
+        "  <meta charset=\"utf-8\" />\n"
+        "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n"
+        "  <title>Offres ADUM</title>\n"
+        "</head>\n<body>\n"
+        "  <h1>Offres ADUM</h1>\n"
+        "  <table border=\"1\" cellpadding=\"6\" cellspacing=\"0\">\n"
+        "    <thead><tr><th>Date (ISO)</th><th>Titre</th></tr></thead>\n"
+        "    <tbody>\n" + "\n".join(rows) + "\n"
+        "    </tbody>\n"
+        "  </table>\n"
+        "</body>\n</html>\n"
+    )
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(html)
+
 def main():
     ap = argparse.ArgumentParser(description="ADUM one-page scraper (parallel, minimal fields).")
     ap.add_argument("--url", required=True)
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--out-json", default="")
+    ap.add_argument("--out-html", default="")
     ap.add_argument("--debug", action="store_true")
     args = ap.parse_args()
 
@@ -139,7 +167,12 @@ def main():
     if args.out_json:
         with open(args.out_json, "w", encoding="utf-8") as f:
             f.write(text)
-    print(text)
+
+    if args.out_html:
+        save_html(args.out_html, out)
+
+    # Impression stdout = JSON (utile pour pipe)
+    print(json.dumps(out, ensure_ascii=False, indent=2))
 
 if __name__ == "__main__":
     main()
