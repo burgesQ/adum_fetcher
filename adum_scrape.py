@@ -148,7 +148,7 @@ def save_html(path: str, items: list[dict]):
 
 def main():
     ap = argparse.ArgumentParser(description="ADUM one-page scraper (parallel, minimal fields).")
-    ap.add_argument("--url", required=True)
+    ap.add_argument("--url", default="https://adum.fr/as/ed/propositionFR.pl")
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--out-json", default="")
     ap.add_argument("--out-html", default="")
