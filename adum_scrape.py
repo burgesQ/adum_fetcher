@@ -11,10 +11,15 @@ Usage:
     --debug
 """
 from __future__ import annotations
-import argparse, json, sys, time, threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urljoin
 from html import escape
+
+import argparse
+import json
+import sys
+import time
+import threading
 
 import requests
 from bs4 import BeautifulSoup
