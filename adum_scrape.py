@@ -76,9 +76,12 @@ def fetch(url: str, timeout=DEFAULT_TIMEOUT, debug=False) -> str:
             time.sleep(BACKOFF_BASE * attempt)
     raise last_err if last_err else RuntimeError("Unknown fetch error")
 
+# TODO: return tuple(string, string)
+# with url, title
 def extract_links(list_url: str, html: str):
     soup = BeautifulSoup(html, "html.parser")
-    anchors = soup.select('a[href*="proposition"]') or soup.select('a[href*="adum.fr"][href*="proposition"]')
+    anchors = soup.select('a[href*="proposition"]') or \
+        soup.select('a[href*="adum.fr"][href*="proposition"]')
     seen = set()
     out = []
     for a in anchors:
@@ -102,7 +105,8 @@ def parse_detail(url: str, title_hint: str, debug=False):
         dt = parse_fr_date(raw)
         ts = int(dt.timestamp()) if dt else -1
         page_title = soup.find(["h1", "h2", "h3"])
-        title = page_title.get_text(" ", strip=True) if page_title else title_hint
+        # title = page_title.get_text(" ", strip=True) if page_title else title_hint
+        title = title_hint
         if debug and dt:
             print(f"[DEBUG] {url} => {dt.date()} | {title[:60]}", file=sys.stderr)
         return {
