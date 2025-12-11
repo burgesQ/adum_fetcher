@@ -3,8 +3,12 @@ name: Build & Deploy ADUM HTML
 on:
   # Action tab "Run workflow" button
   workflow_dispatch:
+  # Run for each push to main
+  push:
+    branches:
+      - main
 
-  # Re-run each day a 8am
+  # Run each day a 8am
   schedule:
     - cron: "0 8 * * *"
 
@@ -33,6 +37,7 @@ jobs:
       - name: Generate HTML
         run: |
           mkdir -p site
+          uv sync
           uv run adum_scrape.py \
             --workers 100 \
             --out-json site/adum_offres.json \
