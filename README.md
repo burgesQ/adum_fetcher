@@ -2,6 +2,10 @@
 
 Tired of scrolling endlessly through unsorted thesis offers on ADUM? This tool fetches all available "propositions de sujets de thèse" from ADUM and sorts them chronologically—so you can find the freshest opportunities first!
 
+## TLDR
+
+https://burgesq.github.io/adum_fetcher/ (updated every day @ 8:00am)
+
 ## Features
 - Scrapes all offers from https://adum.fr/as/ed/propositionFR.pl
 - Sorts by last update date ("Dernière mise à jour le")
